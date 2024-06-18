@@ -87,7 +87,7 @@ namespace ListaTarefas.View
                 case 1:
                     bool result = TarefaController.DeletarTarefa(tarefa);
                     if(result)
-                    Console.WriteLine("Tarefa deletada com sucesso!");
+                        Console.WriteLine("Tarefa deletada com sucesso!");
                 break;
 
                 case 0:

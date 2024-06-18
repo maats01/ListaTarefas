@@ -32,8 +32,7 @@ namespace ListaTarefas.Repository
 
         public static bool Delete(Tarefa tarefa)
         {
-            DataSet.tarefas.Remove(tarefa);
-            return true;
+            return DataSet.tarefas.Remove(tarefa);            
         }
     }    
 }
