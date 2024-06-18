@@ -4,69 +4,36 @@ using System.Linq;
 using System.Threading.Tasks;
 using ListaTarefas.Model;
 using ListaTarefas.Data;
+using System.Runtime.InteropServices;
 
 namespace ListaTarefas.Repository
 {
     public class TarefaRepository
     {
-        static void CriarTarefa()
+        public static void Create(Tarefa novaTarefa)
         {
-        Console.Write("Digite a descrição da tarefa: ");
-        string descricao = Console.ReadLine();
-
-        Tarefa novaTarefa = new Tarefa { Id = DataSet.tarefas.Count + 1, Descricao = descricao };
-        DataSet.tarefas.Add(novaTarefa);
-
-        Console.WriteLine("Tarefa criada com sucesso!");
+            novaTarefa.Id = DataSet.tarefas.Count + 1;
+            DataSet.tarefas.Add(novaTarefa);
         }
 
-        static void ListarTarefas()
+        public static List<Tarefa> Read()
         {
-            if (DataSet.tarefas.Count == 0)
-            {
-                Console.WriteLine("Nenhuma tarefa encontrada.");
-                return;
-            }
-
-            foreach (var tarefa in DataSet.tarefas)
-            {
-                Console.WriteLine($"ID: {tarefa.Id}, Descrição: {tarefa.Descricao}");
-            }
+            return DataSet.tarefas;
         }
 
-        static void AtualizarTarefa()
+        public static void Update(Tarefa tarefa, string desc)
         {
-            Console.Write("Digite o ID da tarefa que deseja atualizar: ");
-            int id = int.Parse(Console.ReadLine());
-
-            var tarefa = DataSet.tarefas.FirstOrDefault(t => t.Id == id);
-            if (tarefa == null)
-            {
-                Console.WriteLine("Tarefa não encontrada.");
-                return;
-            }
-
-            Console.Write("Digite a nova descrição da tarefa: ");
-            tarefa.Descricao = Console.ReadLine();
-
-            Console.WriteLine("Tarefa atualizada com sucesso!");
+            tarefa.Descricao = desc;
+        }
+        public static void Update(Tarefa tarefa, bool status)
+        {
+            tarefa.Concluido = status;
         }
 
-        static void DeletarTarefa()
+        public static bool Delete(Tarefa tarefa)
         {
-            Console.Write("Digite o ID da tarefa que deseja deletar: ");
-            int id = int.Parse(Console.ReadLine());
-
-            var tarefa = DataSet.tarefas.FirstOrDefault(t => t.Id == id);
-            if (tarefa == null)
-            {
-                Console.WriteLine("Tarefa não encontrada.");
-                return;
-            }
-
             DataSet.tarefas.Remove(tarefa);
-
-            Console.WriteLine("Tarefa deletada com sucesso!");
+            return true;
         }
     }    
 }
