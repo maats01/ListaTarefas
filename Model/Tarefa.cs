@@ -10,5 +10,7 @@ namespace ListaTarefas.Model
         public int Id { get; set; }
         public string Descricao { get; set; }
         public bool Concluido { get; set; }
+        public DateTime Data { get; set; } 
+       public TimeSpan Intervalo { get; set; }
     }
 }

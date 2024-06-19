@@ -1,10 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using ListaTarefas.Model;
 using ListaTarefas.Data;
-using System.Runtime.InteropServices;
 
 namespace ListaTarefas.Repository
 {
@@ -25,6 +23,7 @@ namespace ListaTarefas.Repository
         {
             tarefa.Descricao = desc;
         }
+
         public static void Update(Tarefa tarefa, bool status)
         {
             tarefa.Concluido = status;
@@ -34,5 +33,19 @@ namespace ListaTarefas.Repository
         {
             return DataSet.tarefas.Remove(tarefa);            
         }
-    }    
+
+        public static List<Tarefa> ReadByDate(DateTime data)
+        {
+            return DataSet.tarefas
+                .Where(t => t.Data.Date == data.Date)
+                .ToList();
+        }
+
+        public static List<Tarefa> ReadByInterval(DateTime dataInicial, DateTime dataFinal)
+        {
+            return DataSet.tarefas
+                .Where(t => t.Data.Date >= dataInicial.Date && t.Data.Date <= dataFinal.Date)
+                .ToList();
+        }
+    }
 }

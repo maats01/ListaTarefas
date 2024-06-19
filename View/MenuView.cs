@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using ListaTarefas.Controller;
 using ListaTarefas.Model;
 
@@ -18,84 +16,116 @@ namespace ListaTarefas.View
                 Console.WriteLine("====================");
                 Console.WriteLine("Menu:");
                 Console.WriteLine("1. Criar tarefa");
-                Console.WriteLine("2. Listar tarefas");
+                Console.WriteLine("2. Listar todas as tarefas");
                 Console.WriteLine("3. Atualizar tarefa");
                 Console.WriteLine("4. Deletar tarefa");
-                Console.WriteLine("5. Sair");
+                Console.WriteLine("5. Listar tarefas em determinada data");
+                Console.WriteLine("6. Sair");
                 Console.Write("Escolha uma opção: ");
-                
-                opcao = Convert.ToInt32(Console.ReadLine());
+
+                if (!int.TryParse(Console.ReadLine(), out opcao))
+                {
+                    Console.WriteLine("Opção inválida. Tente novamente.");
+                    continue;
+                }
 
                 switch (opcao)
                 {
                     case 1:
                         CriarTarefaView();
-                    break;
+                        break;
 
                     case 2:
                         MostrarTarefas();
-                    break;
+                        break;
 
                     case 3:
                         AtualizarTarefasView();
-                    break;
+                        break;
 
                     case 4:
                         DeletarTarefaView();
-                    break;
+                        break;
 
                     case 5:
+                        ListarTarefasEmData();
+                        break;
+
+                    case 6:
                         Console.WriteLine("Saindo...");
-                    break;
+                        break;
 
                     default:
                         Console.WriteLine("Opção inválida. Tente novamente.");
-                    break;
+                        break;
                 }
-            } while (opcao != 5);
+            } while (opcao != 6);
         }
 
         public static void CriarTarefaView()
         {
             Console.Write("Digite a descrição da tarefa: ");
             string descricao = Console.ReadLine();
-            Tarefa novaTarefa = new Tarefa {  
+
+            Console.Write("Digite a data da tarefa (dia/mes/ano): ");
+            DateTime data;
+            while (!DateTime.TryParse(Console.ReadLine(), out data))
+            {
+                Console.Write("Data inválida. Digite novamente (dia/mes/ano): ");
+            }
+
+            Console.Write("Digite o intervalo da tarefa (horas:minutos:segundos): ");
+            TimeSpan intervalo;
+            while (!TimeSpan.TryParse(Console.ReadLine(), out intervalo))
+            {
+                Console.Write("Intervalo inválido. Digite novamente (horas:minutos:segundos): ");
+            }
+
+            Tarefa novaTarefa = new Tarefa
+            {
                 Descricao = descricao,
-                Concluido = false 
+                Concluido = false,
+                Data = data,
+                Intervalo = intervalo
             };
-            TarefaController.CriarTarefa(novaTarefa);
-            Console.WriteLine("Tarefa criada com sucesso!");
+
+            string resultado = TarefaController.CriarTarefa(novaTarefa);
+            Console.WriteLine(resultado);
         }
 
         public static void DeletarTarefaView()
         {
             Console.Write("Digite o ID da tarefa que deseja deletar: ");
-            int id = int.Parse(Console.ReadLine());
-            int resposta;
+            int id;
+            while (!int.TryParse(Console.ReadLine(), out id))
+            {
+                Console.Write("ID inválido. Digite novamente: ");
+            }
+
             var tarefa = TarefaController.RetornaTarefas().FirstOrDefault(t => t.Id == id);
             if (tarefa == null)
             {
                 Console.WriteLine("Tarefa não encontrada.");
                 return;
             }
-            Console.WriteLine("Deseja mesmo deletar esta tarefa? ");
+
+            Console.WriteLine($"Deseja mesmo deletar a seguinte tarefa?");
+            Console.WriteLine($"ID: {tarefa.Id}, Descrição: {tarefa.Descricao}, Concluída: {tarefa.Concluido}, Data: {tarefa.Data.ToString("dd/MM/yyyy")}, Intervalo: {tarefa.Intervalo}");
             Console.WriteLine("1 - Sim");
             Console.WriteLine("0 - Não");
-            resposta = Convert.ToInt16(Console.ReadLine());
-            switch(resposta)
+            int resposta;
+            while (!int.TryParse(Console.ReadLine(), out resposta) || (resposta != 0 && resposta != 1))
             {
-                case 1:
-                    bool result = TarefaController.DeletarTarefa(tarefa);
-                    if(result)
-                        Console.WriteLine("Tarefa deletada com sucesso!");
-                break;
+                Console.WriteLine("Opção inválida. Digite 1 para Sim ou 0 para Não.");
+            }
 
-                case 0:
-                    return;
-                
-                default:
-                    Console.WriteLine("Resposta inválida, tente novamente");
-                break;
+            if (resposta == 1)
+            {
+                bool result = TarefaController.DeletarTarefa(tarefa);
+                if (result)
+                    Console.WriteLine("Tarefa deletada com sucesso!");
+                else
+                    Console.WriteLine("Erro ao deletar tarefa.");
             }
         }
 
@@ -108,10 +138,11 @@ namespace ListaTarefas.View
                 return;
             }
 
+            Console.WriteLine("Lista de tarefas:");
             foreach (var tarefa in tarefas)
             {
                 string status = tarefa.Concluido ? "Sim" : "Não";
-                Console.WriteLine($"ID: {tarefa.Id}, Descrição: {tarefa.Descricao}, Concluída: {status}");
+                Console.WriteLine($"ID: {tarefa.Id}, Descrição: {tarefa.Descricao}, Concluída: {status}, Data: {tarefa.Data.ToString("dd/MM/yyyy")}, Intervalo: {tarefa.Intervalo}");
             }
         }
 
@@ -119,9 +150,12 @@ namespace ListaTarefas.View
         {
             List<Tarefa> tarefas = TarefaController.RetornaTarefas();
             Console.Write("Digite o ID da tarefa que deseja atualizar: ");
-            int id = int.Parse(Console.ReadLine());
-            int resposta;
-            bool status;
+            int id;
+            while (!int.TryParse(Console.ReadLine(), out id))
+            {
+                Console.Write("ID inválido. Digite novamente: ");
+            }
+
             var tarefa = tarefas.FirstOrDefault(t => t.Id == id);
             if (tarefa == null)
             {
@@ -129,46 +163,66 @@ namespace ListaTarefas.View
                 return;
             }
 
+            Console.WriteLine($"Tarefa encontrada:");
+            Console.WriteLine($"ID: {tarefa.Id}, Descrição: {tarefa.Descricao}, Concluída: {tarefa.Concluido}, Data: {tarefa.Data.ToString("dd/MM/yyyy")}, Intervalo: {tarefa.Intervalo}");
+
             Console.WriteLine("Deseja alterar a descrição da tarefa? ");
             Console.WriteLine("1 - Sim");
             Console.WriteLine("0 - Não");
-            resposta = Convert.ToInt16(Console.ReadLine());
-            switch(resposta)
+            int resposta;
+            while (!int.TryParse(Console.ReadLine(), out resposta) || (resposta != 0 && resposta != 1))
             {
-                case 1:
-                    Console.Write("Digite a nova descrição da tarefa: ");
-                    string Descricao = Console.ReadLine();
-                    TarefaController.AtualizarTarefa(tarefa, Descricao);
-                break;
-
-                case 0:
-                break;
-
-                default:
-                    Console.WriteLine("Resposta inválida, tente novamente: ");
-                break;
+                Console.WriteLine("Opção inválida. Digite 1 para Sim ou 0 para Não.");
             }
+
+            if (resposta == 1)
+            {
+                Console.Write("Digite a nova descrição da tarefa: ");
+                string descricao = Console.ReadLine();
+                TarefaController.AtualizarTarefa(tarefa, descricao);
+            }
+
             Console.WriteLine("A tarefa foi concluída?");
             Console.WriteLine("1 - Sim");
             Console.WriteLine("0 - Não");
-            resposta = Convert.ToInt16(Console.ReadLine());
-            switch(resposta)
+            while (!int.TryParse(Console.ReadLine(), out resposta) || (resposta != 0 && resposta != 1))
             {
-                case 1:
-                    status = true;
-                    TarefaController.AtualizarTarefa(tarefa, status);
-                break;
-
-                case 0:
-                    status = false;
-                    TarefaController.AtualizarTarefa(tarefa, status);
-                break;    
-
-                default:
-                    Console.WriteLine("Resposta inválida, tente novamente: ");
-                break;
+                Console.WriteLine("Opção inválida. Digite 1 para Sim ou 0 para Não.");
             }
+
+            bool status = resposta == 1 ? true : false;
+            TarefaController.AtualizarTarefa(tarefa, status);
+
             Console.WriteLine("Tarefa atualizada com sucesso!");
+        }
+
+        public static void ListarTarefasEmData()
+        {
+            Console.Write("Digite a data para listar as tarefas (dia/mes/ano): ");
+            DateTime data;
+            while (!DateTime.TryParse(Console.ReadLine(), out data))
+            {
+                Console.Write("Data inválida. Digite novamente (dia/mes/ano): ");
+            }
+
+            List<Tarefa> tarefasNaData = TarefaController.RetornaTarefasPorData(data);
+            MostrarListaTarefas(tarefasNaData);
+        }
+
+        private static void MostrarListaTarefas(List<Tarefa> tarefas)
+        {
+            if (tarefas.Count == 0)
+            {
+                Console.WriteLine("Nenhuma tarefa encontrada no intervalo especificado.");
+                return;
+            }
+
+            Console.WriteLine("Tarefas encontradas no intervalo especificado:");
+            foreach (var tarefa in tarefas)
+            {
+                string status = tarefa.Concluido ? "Sim" : "Não";
+                Console.WriteLine($"ID: {tarefa.Id}, Descrição: {tarefa.Descricao}, Concluída: {status}, Data: {tarefa.Data.ToString("dd/MM/yyyy")}, Intervalo: {tarefa.Intervalo}");
+            }
         }
     }
 }
