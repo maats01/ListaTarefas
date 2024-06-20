@@ -128,7 +128,7 @@ namespace ListaTarefas.View
             }
 
             Console.WriteLine($"Deseja mesmo deletar a seguinte tarefa?");
-            Console.WriteLine($"ID: {tarefa.Id}, Descrição: {tarefa.Descricao}, Concluída: {tarefa.Concluido}, Data: {tarefa.Data.ToString("dd/MM/yyyy")}, Intervalo: {tarefa.Intervalo}");
+            Console.WriteLine(tarefa.ToString());
             Console.WriteLine("1 - Sim");
             Console.WriteLine("0 - Não");
             int resposta;
