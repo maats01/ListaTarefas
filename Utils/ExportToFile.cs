@@ -8,7 +8,7 @@ namespace ListaTarefas.Utils
 {
     public class ExportToFile
     {
-        private const string dir = @"C:\Users\Matheus\Desktop\UNOESC\ListaTarefas\TarefasSalvas";
+        private static string dir = Path.Combine(Directory.GetCurrentDirectory(), "TarefasSalvas");
         public static bool SaveToDelimitedTxt(string fileName, string fileContent)
         {
             string filePath = @$"{dir}\{fileName}";
